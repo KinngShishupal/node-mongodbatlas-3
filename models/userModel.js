@@ -26,6 +26,7 @@ const userSchema = new mongoose.Schema({
     type: String, 
     required: [true, 'Please Provide a valid password'],
     minlength: [8, 'Name Should be more than 8'],
+    select:false, // this will come if we try to fetch all users
   },
   passwordConfirm: {
     type: String,
@@ -50,6 +51,12 @@ this.password = await bcrypt.hash(this.password,12); // pasword hashing, default
 this.passwordConfirm = undefined; // this allows us to not save passwordConform fields into the database
 next();
 })
+
+// this is called instance method which is available everywhere of user document
+userSchema.methods.correctPassword = async function(candidatePassword, userPassword){
+// here this.password will not work as that is select false
+return await bcrypt.compare(candidatePassword, userPassword);
+}
 
 const User = mongoose.model('User', userSchema);
 
