@@ -18,6 +18,7 @@ app.use(express.json()); // middleware to read body data also called body parser
 app.use((req, res, next) => {
   // middleware applies to every request whether it is get post put patch delete etc
   console.log('hello from middleware ...');
+  // console.log(req.headers)
   next();
 });
 

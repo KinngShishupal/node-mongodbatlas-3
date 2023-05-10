@@ -189,7 +189,7 @@ const aliasTopTours = async (req, res, next) => {
 
 const getAllTours = async (req, res) => {
   try {
-    console.log('xxxxxxxxx', req.query);
+    // console.log('xxxxxxxxx', req.query);
     // EXECUTE QUERY
     const features = new APIFeatures(Tour.find(), req.query)
       .filter()

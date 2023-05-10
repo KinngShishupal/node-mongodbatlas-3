@@ -9,6 +9,7 @@ const {
   getTourStats,
   getMonthlyPlan,
 } = require('../controllers/tourController');
+const { protect } = require('../controllers/authController');
 const router = express.Router();
 
 // param middleware that runs when certain parameter is there in route
@@ -20,7 +21,7 @@ router.route('/top-5-cheap').get(aliasTopTours, getAllTours);
 router.route('/tour-stats').get(getTourStats); // aggregation pipeline
 router.route('/monthly-plan/:year').get(getMonthlyPlan); // aggregation pipeline advanced
 
-router.route('/').get(getAllTours).post(createTour);
+router.route('/').get(protect, getAllTours).post(createTour); //protect is actually is middleware whose job is to check if user have access to particular route
 router.route('/:id').get(getTour).patch(updateTour).delete(deleteTour);
 
 module.exports = router;

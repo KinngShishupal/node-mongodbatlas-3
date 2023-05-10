@@ -5,3 +5,4 @@
 3. Managing Password (hashing/encrypting passwords)
 4. jwt token creation
 5. signup and logging of user
+6. Protecting tour Routes
