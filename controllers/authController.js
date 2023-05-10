@@ -3,6 +3,7 @@ const User = require('../models/userModel');
 const signup = async (req, res, next) => {
   try {
     // const newUSer = await User.create(req.body);
+    // the below methodology allows us to take only required fields
     const newUSer = await User.create({
       name:req.body.name,
       email:req.body.email,
