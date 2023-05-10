@@ -1,5 +1,8 @@
 const mongoose = require('mongoose');
 const validator = require('validator');
+const bcrypt = require('bcrypt');
+
+
 const userSchema = new mongoose.Schema({
   name: {
     type: String,
@@ -20,15 +23,33 @@ const userSchema = new mongoose.Schema({
     type: String,
   },
   password: {
-    type: String,
+    type: String, 
     required: [true, 'Please Provide a valid password'],
     minlength: [8, 'Name Should be more than 8'],
   },
   passwordConfirm: {
     type: String,
     required: [true, 'Please confirm your password'],
+    validate:{
+      // this works for create and save only not for update
+      validator: function(el){
+        return this.password === el
+      },
+      message: 'Password Mismatched ..'
+    }
   },
 });
+
+userSchema.pre('save',async function(next){
+if(!this.isModified('password')){
+  // to check if password was actually modified
+  return next()
+};
+
+this.password = await bcrypt.hash(this.password,12); // pasword hashing, default salt value is 10
+this.passwordConfirm = undefined; // this allows us to not save passwordConform fields into the database
+next();
+})
 
 const User = mongoose.model('User', userSchema);
 
