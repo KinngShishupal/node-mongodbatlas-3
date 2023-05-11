@@ -13,7 +13,8 @@ const signup = async (req, res, next) => {
       email: req.body.email,
       password: req.body.password,
       passwordConfirm: req.body.passwordConfirm,
-      passwordChangedAt:req.body.passwordChangedAt
+      passwordChangedAt:req.body.passwordChangedAt,
+      role:req.body.role
     });
 
     // const token = jwt.sign(object for all the data we want to store insidetoken, secret String, options)
@@ -70,6 +71,7 @@ const login = async (req, res, next) => {
   }
 };
 
+// For protected routes
 const protect = async (req, res, next) => {
   try {
     // 1. getting token and check if its there
@@ -107,7 +109,7 @@ if(!userBasedOndecodedId){
    }
 
   //  grant access to protected route
-  req.user = userBasedOndecodedId;
+  req.user = userBasedOndecodedId; // this stores current logged user into the user variable in the request which can be used in the next function if necessary
     next();
   } catch (error) {
     res.status(400).json({
@@ -117,8 +119,31 @@ if(!userBasedOndecodedId){
   }
 };
 
+// For Authorization
+const restrictTo = (...roles) =>{
+  // spread operator converts incoming roles into an array, this function is also an example of closures
+return (req, res, next)=>{
+// console.log('roles >>>>>>',roles, req.user);
+if(!roles.includes(req.user.role)){
+  return next(new AppError('You donot have permission to perform this action',403))
+}
+next()
+}
+}
+// const restrictToinner = async(req, res, next)=>{
+//   try {
+//     next()
+//   } catch (error) {
+//     res.status(400).json({
+//       status: 'fail',
+//       message: error,
+//     });
+//   }
+// }
+
 module.exports = {
   signup,
   login,
   protect,
+  restrictTo
 };

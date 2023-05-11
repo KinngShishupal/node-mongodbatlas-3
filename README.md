@@ -7,3 +7,4 @@
 5. signup and logging of user
 6. Protecting tour Routes
 7. Controller for protected routes
+8. Authorization and security (Roles and Permissions)
