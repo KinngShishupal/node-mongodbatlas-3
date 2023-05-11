@@ -8,4 +8,4 @@
 6. Protecting tour Routes
 7. Controller for protected routes
 8. Authorization and security (Roles and Permissions)
-9. Password reset
+9. Password reset generate token

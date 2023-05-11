@@ -1,8 +1,7 @@
 const mongoose = require('mongoose');
 const validator = require('validator');
 const bcrypt = require('bcrypt');
-const crypto = require('crypto');//inbuild
-
+const crypto = require('crypto'); //inbuild
 
 const userSchema = new mongoose.Schema({
   name: {
@@ -24,61 +23,74 @@ const userSchema = new mongoose.Schema({
     type: String,
   },
   password: {
-    type: String, 
+    type: String,
     required: [true, 'Please Provide a valid password'],
     minlength: [8, 'Name Should be more than 8'],
-    select:false, // this will come if we try to fetch all users
+    select: false, // this will come if we try to fetch all users
   },
   passwordConfirm: {
     type: String,
     required: [true, 'Please confirm your password'],
-    validate:{
+    validate: {
       // this works for create and save only not for update
-      validator: function(el){
-        return this.password === el
+      validator: function (el) {
+        return this.password === el;
       },
-      message: 'Password Mismatched ..'
-    }
+      message: 'Password Mismatched ..',
+    },
   },
-  passwordChangedAt:Date,
-  role:{
-    type:String,
-    enum:['admin','user','guide','lead-guide'],
-    default:'user'
-  }
+  passwordChangedAt: Date,
+  role: {
+    type: String,
+    enum: ['admin', 'user', 'guide', 'lead-guide'],
+    default: 'user',
+  },
+
+  passwordResetToken: String,
+  passwordResetExpires: Date,
 });
 
-userSchema.pre('save',async function(next){
-if(!this.isModified('password')){
-  // to check if password was actually modified
-  return next()
-};
+userSchema.pre('save', async function (next) {
+  if (!this.isModified('password')) {
+    // to check if password was actually modified
+    return next();
+  }
 
-this.password = await bcrypt.hash(this.password,12); // pasword hashing, default salt value is 10
-this.passwordConfirm = undefined; // this allows us to not save passwordConform fields into the database
-next();
-})
+  this.password = await bcrypt.hash(this.password, 12); // pasword hashing, default salt value is 10
+  this.passwordConfirm = undefined; // this allows us to not save passwordConform fields into the database
+  next();
+});
 
 // this is called instance method which is available everywhere of user document
-userSchema.methods.correctPassword = async function(candidatePassword, userPassword){
-// here this.password will not work as that is select false
-return await bcrypt.compare(candidatePassword, userPassword);
-}
+userSchema.methods.correctPassword = async function (
+  candidatePassword,
+  userPassword
+) {
+  // here this.password will not work as that is select false
+  return await bcrypt.compare(candidatePassword, userPassword);
+};
 
-userSchema.methods.changedPasswordsAfter = function(JWTTimeStamp){
-  if(this.passwordChangedAt){
+userSchema.methods.changedPasswordsAfter = function (JWTTimeStamp) {
+  if (this.passwordChangedAt) {
     // perform comparison only after user has changed the password
-    const changedTimeStamp = parseInt(this.passwordChangedAt.getTime()/1000);// converting time into seconds
+    const changedTimeStamp = parseInt(this.passwordChangedAt.getTime() / 1000); // converting time into seconds
     // console.log('www',changedTimeStamp, JWTTimeStamp)
-    console.log('eeeeeeeee',JWTTimeStamp<changedTimeStamp,{JWTTimeStamp, changedTimeStamp})
-    return JWTTimeStamp<changedTimeStamp;
+    // console.log('eeeeeeeee',JWTTimeStamp<changedTimeStamp,{JWTTimeStamp, changedTimeStamp})
+    return JWTTimeStamp < changedTimeStamp;
   }
-return false;
-}
+  return false;
+};
 
-userSchema.methods.createPasswordResetToken = function(){
-
-}
+userSchema.methods.createPasswordResetToken = function () {
+  const resetToken = crypto.randomBytes(32).toString('hex'); // we can create token in any way we like it doesnot need to as strong as encrypted as password;
+  this.passwordResetToken = crypto
+    .createHash('sha256')
+    .update(resetToken)
+    .digest('hex');
+  this.passwordResetExpires = Date.now() + 10 * 60 * 1000; // 10 minutes expires time this is in milli seconds
+  console.log('rrrrrrrrrr', { resetToken, y: this.passwordResetToken });
+  return resetToken;
+};
 
 const User = mongoose.model('User', userSchema);
 

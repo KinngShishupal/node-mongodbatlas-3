@@ -13,8 +13,10 @@ const signup = async (req, res, next) => {
       email: req.body.email,
       password: req.body.password,
       passwordConfirm: req.body.passwordConfirm,
-      passwordChangedAt:req.body.passwordChangedAt,
-      role:req.body.role
+      passwordChangedAt: req.body.passwordChangedAt,
+      role: req.body.role,
+      passwordResetToken: req.body.passwordResetToken,
+      passwordResetExpires: req.body.passwordResetExpires,
     });
 
     // const token = jwt.sign(object for all the data we want to store insidetoken, secret String, options)
@@ -95,21 +97,31 @@ const protect = async (req, res, next) => {
     }
 
     // 2. verification token
-    const decoded = await util.promisify(jwt.verify)(token, process.env.JWT_SECRET); // promisify coverts something into promise, we could convert it into promise as third argument is a callback function 
+    const decoded = await util.promisify(jwt.verify)(
+      token,
+      process.env.JWT_SECRET
+    ); // promisify coverts something into promise, we could convert it into promise as third argument is a callback function
 
-    // console.log('<><><>><>><',decoded); // this decoded data contains user id ans exp and creation date 
+    // console.log('<><><>><>><',decoded); // this decoded data contains user id ans exp and creation date
     // 3. check if user still exists(like user was deleted or changed password after he was logged in)
-const userBasedOndecodedId = await User.findById(decoded.id); // userBasedOndecodedId is basically current user
-if(!userBasedOndecodedId){
-  return next(new AppError('The User belonging to this token No Longer exists', 401))
-}
+    const userBasedOndecodedId = await User.findById(decoded.id); // userBasedOndecodedId is basically current user
+    if (!userBasedOndecodedId) {
+      return next(
+        new AppError('The User belonging to this token No Longer exists', 401)
+      );
+    }
     // 4. check if user changes passwords after jwt was issued
-   if (userBasedOndecodedId.changedPasswordsAfter(decoded.iat)){
-    return next(new AppError('User Changed his password recently, Please log in again', 401))
-   }
+    if (userBasedOndecodedId.changedPasswordsAfter(decoded.iat)) {
+      return next(
+        new AppError(
+          'User Changed his password recently, Please log in again',
+          401
+        )
+      );
+    }
 
-  //  grant access to protected route
-  req.user = userBasedOndecodedId; // this stores current logged user into the user variable in the request which can be used in the next function if necessary
+    //  grant access to protected route
+    req.user = userBasedOndecodedId; // this stores current logged user into the user variable in the request which can be used in the next function if necessary
     next();
   } catch (error) {
     res.status(400).json({
@@ -120,28 +132,37 @@ if(!userBasedOndecodedId){
 };
 
 // For Authorization
-const restrictTo = (...roles) =>{
+const restrictTo = (...roles) => {
   // spread operator converts incoming roles into an array, this function is also an example of closures
-return (req, res, next)=>{
-// console.log('roles >>>>>>',roles, req.user);
-if(!roles.includes(req.user.role)){
-  return next(new AppError('You donot have permission to perform this action',403))
-}
-next()
-}
-}
+  return (req, res, next) => {
+    // console.log('roles >>>>>>',roles, req.user);
+    if (!roles.includes(req.user.role)) {
+      return next(
+        new AppError('You donot have permission to perform this action', 403)
+      );
+    }
+    next();
+  };
+};
 
-const forgotPassword = async(req, res, next)=>{
+const forgotPassword = async (req, res, next) => {
   try {
     // 1. Get user based on posted email
-const user = await User.findOne({email:req.body.email});
-if(!user){
-  return next(new AppError('There is no user with this email address', 404))
-}
+    const user = await User.findOne({ email: req.body.email });
+    // console.log('wwwwwwwww', { user });
+    if (!user) {
+      return next(
+        new AppError('There is no user with this email address', 404)
+      );
+    }
     // 2. Generate the random reset token
 
+    const resetToken = user.createPasswordResetToken();
+    // console.log('wwwwwwwww', { user, resetToken });
+    await user.save({ validateBeforeSave: false }); // to save the modified data which includes passwordResetExpires and passwordResetToken
+    // validateBeforeSave:false as we will be proving only the email and wants token to be saved into the databse
     // 3. Send it to user's email
-    next();
+    // next();
   } catch (error) {
     res.status(400).json({
       status: 'fail',
@@ -149,8 +170,7 @@ if(!user){
     });
   }
 };
-const resetPassword = (req, res, next)=>{};
-
+const resetPassword = (req, res, next) => {};
 
 module.exports = {
   signup,
@@ -158,5 +178,5 @@ module.exports = {
   protect,
   restrictTo,
   forgotPassword,
-  resetPassword
+  resetPassword,
 };
