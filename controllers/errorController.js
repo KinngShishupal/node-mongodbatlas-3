@@ -5,6 +5,14 @@ const handleCastErrorDB = (err) => {
   return new AppError(message, 400);
 };
 
+const handleJwtError = (err)=>{
+  return new AppError('Invalid Token. Please login again',401)
+}
+
+const handleJwtExpiredError =(err)=>{
+  return new AppError('Token Expired. Please login again',401)
+}
+
 const sendErrorDev = (err, res) => {
   res.status(err.statusCode).json({
     status: err.status,
@@ -60,6 +68,12 @@ module.exports = (err, req, res, next) => {
       // this is just done to modify the default error we are getting in case of cast error
       // cast error are found when we write invalid id in search by id and at other places also
       error = handleCastErrorDB(error);
+    }
+    if(err.name === 'JsonWebTokenError'){
+      error = handleJwtError(error)
+    }
+    if(err.name === 'TokenExpiredError'){
+      error = handleJwtExpiredError(error)
     }
     sendErrorProd(error, res);
   }

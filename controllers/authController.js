@@ -1,3 +1,4 @@
+const util = require('util'); // inbuild
 const User = require('../models/userModel');
 var jwt = require('jsonwebtoken');
 const AppError = require('../utils/appError');
@@ -91,9 +92,14 @@ const protect = async (req, res, next) => {
     }
 
     // 2. verification token
+    const decoded = await util.promisify(jwt.verify)(token, process.env.JWT_SECRET); // promisify coverts something into promise, we could convert it into promise as third argument is a callback function 
 
-    // 3. check if user still exists
-
+    console.log('<><><>><>><',decoded); // this decoded data contains user id ans exp and creation date 
+    // 3. check if user still exists(like user was deleted or changed password after he was logged in)
+const userBasedOndecodedId = await User.findById(decoded.id);
+if(!userBasedOndecodedId){
+  return next(new AppError('The User belonging to this token No Longer exists', 401))
+}
     // 4. check if user changes passwords after jwt was issued
 
     next();

@@ -9,7 +9,7 @@ class APIFeatures {
     const queryObj = { ...this.queryString };
     const excludedFields = ['sort', 'limit', 'page', 'fields']; // as these things are handled in separate ways in mongoose
     excludedFields.forEach((el) => delete queryObj[el]);
-    console.log('rrrrrrr', queryObj);
+    // console.log('rrrrrrr', queryObj);
 
     // ADVANCED FILTERING
     let queryStr = JSON.stringify(queryObj);
