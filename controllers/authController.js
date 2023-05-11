@@ -13,6 +13,7 @@ const signup = async (req, res, next) => {
       email: req.body.email,
       password: req.body.password,
       passwordConfirm: req.body.passwordConfirm,
+      passwordChangedAt:req.body.passwordChangedAt
     });
 
     // const token = jwt.sign(object for all the data we want to store insidetoken, secret String, options)
@@ -94,14 +95,19 @@ const protect = async (req, res, next) => {
     // 2. verification token
     const decoded = await util.promisify(jwt.verify)(token, process.env.JWT_SECRET); // promisify coverts something into promise, we could convert it into promise as third argument is a callback function 
 
-    console.log('<><><>><>><',decoded); // this decoded data contains user id ans exp and creation date 
+    // console.log('<><><>><>><',decoded); // this decoded data contains user id ans exp and creation date 
     // 3. check if user still exists(like user was deleted or changed password after he was logged in)
-const userBasedOndecodedId = await User.findById(decoded.id);
+const userBasedOndecodedId = await User.findById(decoded.id); // userBasedOndecodedId is basically current user
 if(!userBasedOndecodedId){
   return next(new AppError('The User belonging to this token No Longer exists', 401))
 }
     // 4. check if user changes passwords after jwt was issued
+   if (userBasedOndecodedId.changedPasswordsAfter(decoded.iat)){
+    return next(new AppError('User Changed his password recently, Please log in again', 401))
+   }
 
+  //  grant access to protected route
+  req.user = userBasedOndecodedId;
     next();
   } catch (error) {
     res.status(400).json({
