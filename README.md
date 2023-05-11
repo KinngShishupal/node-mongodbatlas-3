@@ -9,3 +9,4 @@
 7. Controller for protected routes
 8. Authorization and security (Roles and Permissions)
 9. Password reset generate token
+10. Send generate token to user's email

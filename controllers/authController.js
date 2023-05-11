@@ -161,8 +161,8 @@ const forgotPassword = async (req, res, next) => {
     // console.log('wwwwwwwww', { user, resetToken });
     await user.save({ validateBeforeSave: false }); // to save the modified data which includes passwordResetExpires and passwordResetToken
     // validateBeforeSave:false as we will be proving only the email and wants token to be saved into the databse
+
     // 3. Send it to user's email
-    // next();
   } catch (error) {
     res.status(400).json({
       status: 'fail',
