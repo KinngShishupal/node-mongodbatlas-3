@@ -130,20 +130,33 @@ if(!roles.includes(req.user.role)){
 next()
 }
 }
-// const restrictToinner = async(req, res, next)=>{
-//   try {
-//     next()
-//   } catch (error) {
-//     res.status(400).json({
-//       status: 'fail',
-//       message: error,
-//     });
-//   }
-// }
+
+const forgotPassword = async(req, res, next)=>{
+  try {
+    // 1. Get user based on posted email
+const user = await User.findOne({email:req.body.email});
+if(!user){
+  return next(new AppError('There is no user with this email address', 404))
+}
+    // 2. Generate the random reset token
+
+    // 3. Send it to user's email
+    next();
+  } catch (error) {
+    res.status(400).json({
+      status: 'fail',
+      message: error,
+    });
+  }
+};
+const resetPassword = (req, res, next)=>{};
+
 
 module.exports = {
   signup,
   login,
   protect,
-  restrictTo
+  restrictTo,
+  forgotPassword,
+  resetPassword
 };
