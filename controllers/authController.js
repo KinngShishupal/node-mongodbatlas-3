@@ -227,6 +227,38 @@ try {
 }
 };
 
+const updatePassword = async(req, res, next) => {
+  // to update password for logged in user without having to forget and reset it
+  try {
+    // 1. Get user from collection
+    const user = await User.findById(req.user.id).select('+password');
+    console.log('user is >>>>',{user, data:req.user})
+    // 2. Check if Posted password is correct
+
+    if(!(await user.correctPassword(req.body.passwordCurrent,user.password))){
+return  next(new AppError('Your Current Password is wrong',401))
+    }
+
+    // 3. update the password if it is correct
+    user.password = req.body.password;
+    user.passwordConfirm = req.body.passwordConfirm;
+    await user.save();
+    // 4. Log user again i.e send JWT 
+    const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, {
+      expiresIn: process.env.JWT_EXPIRES_IN,
+    });
+    res.status(200).json({
+      status: 'success',
+      token,
+    });
+  } catch (error) {
+    res.status(400).json({
+      status: 'fail',
+      message: error,
+    });
+  }
+};
+
 module.exports = {
   signup,
   login,
@@ -234,4 +266,5 @@ module.exports = {
   restrictTo,
   forgotPassword,
   resetPassword,
+  updatePassword
 };

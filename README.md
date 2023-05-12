@@ -11,3 +11,4 @@
 9. Password reset generate token
 10. Send generate token to user's email
 11. Password reset functionality: setting new password
+12. Updating logged in user password without having to forget it
