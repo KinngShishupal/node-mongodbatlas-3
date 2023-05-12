@@ -61,6 +61,17 @@ userSchema.pre('save', async function (next) {
   next();
 });
 
+// to change the passwordChangedAt property after password has been modified or is not new document
+userSchema.pre('save', async function (next) {
+  if (!this.isModified('password') || this.isNew) {
+    // to check if password was actually modified
+    return next();
+  }
+  this.passwordChangedAt = Date.now();
+  next()
+})
+
+
 // this is called instance method which is available everywhere of user document
 userSchema.methods.correctPassword = async function (
   candidatePassword,

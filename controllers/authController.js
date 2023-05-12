@@ -206,6 +206,8 @@ try {
 
   await user.save();
   // 3. update changePasswordAt property for the user
+  //  this is done through model middleware
+
   // 4. Log in the user, send JWT
   const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, {
     expiresIn: process.env.JWT_EXPIRES_IN,
