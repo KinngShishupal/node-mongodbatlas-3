@@ -6,11 +6,25 @@ const tourRouter = require('./routes/tourRoutes');
 const useRouter = require('./routes/userRoutes');
 const AppError = require('./utils/appError');
 const globalErrorHandler = require('./controllers/errorController');
+const rateLimit = require('express-rate-limit')
 
-// MIddlewares
+// Global MIddlewares
 if (process.env.NODE_ENV === 'development') {
   app.use(morgan('dev'));
 }
+
+const limiter = rateLimit({
+	windowMs: 60 * 60 * 1000, // 60 minutes
+	max: 3, // Limit each IP to 100 requests per `window` (here, per 60 minutes)
+	standardHeaders: true, // Return rate limit info in the `RateLimit-*` headers
+	legacyHeaders: false, // Disable the `X-RateLimit-*` headers
+  message: 'Too many resquets from this IP, Please try again in an hour'
+})
+
+// Apply the rate limiting middleware to all requests
+app.use('/api',limiter); // applied to all the routes starting with /api this applies to all apis we can set for specifics as well
+
+
 // app.use(morgan('dev')); // to log which api is called and its related things like time status etc
 app.use(express.json()); // middleware to read body data also called body parser
 // app.use(express.static(`${__dirname}/public`));

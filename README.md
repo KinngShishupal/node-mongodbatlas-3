@@ -16,3 +16,4 @@
 14. Deleting logged in user/ deleting self account
 15. Security Best Practices
 16. Sending JWT token via cookie
+17. Rate limiting (express-rate-limit package)
