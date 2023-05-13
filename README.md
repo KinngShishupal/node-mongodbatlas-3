@@ -13,3 +13,4 @@
 11. Password reset functionality: setting new password
 12. Updating logged in user password without having to forget it
 13. Updating logged in user data
+14. Deleting logged in user/ deleting self account

@@ -61,11 +61,28 @@ try {
 }
 }
 
+const deleteMe = async(req, res , next) =>{
+  try {
+    await User.findByIdAndUpdate(req.user._id,{active:false});
+    res.status(204).json({
+      status: 'success',
+      data: null
+    });
+
+  } catch (error) {
+    res.status(400).json({
+      status: 'fail',
+      message: error,
+    });
+  }
+}
+
 module.exports = {
   getAllUsers,
   createUser,
   getUser,
   updateUser,
   deleteUser,
-  updateMe
+  updateMe,
+  deleteMe
 };

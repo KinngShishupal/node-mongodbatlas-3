@@ -48,6 +48,11 @@ const userSchema = new mongoose.Schema({
 
   passwordResetToken: String,
   passwordResetExpires: Date,
+  active:{ // fot account active or inactive
+    type:Boolean,
+    default:true,
+    select:false
+  }
 });
 
 userSchema.pre('save', async function (next) {
@@ -70,6 +75,13 @@ userSchema.pre('save', async function (next) {
   this.passwordChangedAt = Date.now();
   next()
 })
+
+userSchema.pre(/^find/, async function (next) {
+  // this is a case of query middleware which applies to all queries that starts with find like findByIdAndUpdate, findByIdAndDelete etc;
+this.find({active: {$ne:false}}) // only active users we could have used active: true, its just another way of writing
+next();
+}
+)
 
 
 // this is called instance method which is available everywhere of user document

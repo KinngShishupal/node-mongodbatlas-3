@@ -6,6 +6,7 @@ const {
   getUser,
   deleteUser,
   updateMe,
+  deleteMe,
 } = require('../controllers/userController');
 const {
   signup,
@@ -26,6 +27,7 @@ router.patch('/resetPassword/:token', resetPassword);
 
 router.patch('/updateMyPassword',protect, updatePassword);
 router.patch('/updateMe',protect, updateMe); // to allow user to his user data except password
+router.delete('/deleteMe',protect, deleteMe); // to allow user to his user data except password
 
 router.route('/').get(getAllUsers).post(createUser);
 
