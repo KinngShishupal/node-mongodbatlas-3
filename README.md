@@ -14,3 +14,5 @@
 12. Updating logged in user password without having to forget it
 13. Updating logged in user data
 14. Deleting logged in user/ deleting self account
+15. Security Best Practices
+16. Sending JWT token via cookie
