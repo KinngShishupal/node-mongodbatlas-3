@@ -16,4 +16,7 @@
 14. Deleting logged in user/ deleting self account
 15. Security Best Practices
 16. Sending JWT token via cookie
-17. Rate limiting (express-rate-limit package)
+17. Rate limiting (npm install express-rate-limit package)
+18. Setting security HTTP headers (npm i helmet)
+19. Data Sanitization
+20. Prevent Parameter pollution
